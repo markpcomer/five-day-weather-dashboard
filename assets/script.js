@@ -13,145 +13,102 @@ THEN I am again presented with current and future conditions for that city
 var APIKey = "cbc00e00ddc9ea240d4e40b6ebc3d6f6";
 var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}`;
 var cities = [];
-var q = "";
 
-function displayCurrentWeather(city, weather){
-  var requestUrl = 'https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}';
+var userFormEl = document.querySelector('#user-form');
+var cityInputEl = document.querySelector('#city-input');
+var searchButtonEl = document.querySelector('#search-button');
+var searchHistory = document.querySelector('#search-history');
+var forecastCards = document.querySelector('#future-cards');
+var cityName = document.querySelector('#city-name');
 
-  fetch(requestUrl)
-  .then(function (response) {
-    return response.json();
-  })
-  .then(function (data) {
-    
-  })
+
+
+
+
+// Reads projects from local storage and returns array of project objects.
+// Returns an empty array ([]) if there aren't any projects.
+/*
+function readProjectsFromStorage() {
+  var projects = localStorage.getItem('projects');
+  if (projects) {
+    projects = JSON.parse(projects);
+  } else {
+    projects = [];
+  }
+  return projects;
 }
 
-
-
-/*  
-//  Fetch Api from 6-01
-
-var tableBody = document.getElementById('repo-table');
-var fetchButton = document.getElementById('fetch-button');
-
-function getApi() {
-  // fetch request gets a list of all the repos for the node.js organization
-  var requestUrl = 'https://api.github.com/orgs/nodejs/repos';
-
-  fetch(requestUrl)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log(data)
-      //Loop over the data to generate a table, each table row will have a link to the repo url
-      for (var i = 0; i < data.length; i++) {
-        // Creating elements, tablerow, tabledata, and anchor
-        var createTableRow = document.createElement('tr');
-        var tableData = document.createElement('td');
-        var link = document.createElement('a');
-
-        // Setting the text of link and the href of the link
-        link.textContent = data[i].html_url;
-        link.href = data[i].html_url;
-
-        // Appending the link to the tabledata and then appending the tabledata to the tablerow
-        // The tablerow then gets appended to the tablebody
-        tableData.appendChild(link);
-        createTableRow.appendChild(tableData);
-        tableBody.appendChild(createTableRow);
-      }
-    });
+// Takes an array of projects and saves them in localStorage.
+function saveProjectsToStorage(projects) {
+  localStorage.setItem('projects', JSON.stringify(projects));
 }
 
-fetchButton.addEventListener('click', getApi);
+// Gets project data from local storage and displays it
+function printProjectData() {
+  // clear current projects on the page
+  projectDisplayEl.empty();
 
-//  AJAX call from 3rd party API, JQuery
-$.ajax({
-  url: requestUrl,
-  method: 'GET',
-}).then(function (response) {
-  console.log('Ajax Response \n-------------');
-  console.log(response);
-});
+  // get projects from localStorage
+  var projects = readProjectsFromStorage();
 
+  // loop through each project and create a row
+  for (var i = 0; i < projects.length; i += 1) {
+    var project = projects[i];
+    var projectDate = dayjs(project.date);
+    // get date/time for start of today
+    var today = dayjs().startOf('day');
 
-//  Dynamically Generated Elements
+    // Create row and columns for project
+    var rowEl = $('<tr>');
+    var nameEL = $('<td>').text(project.name);
+    var typeEl = $('<td>').text(project.type);
+    var dateEl = $('<td>').text(projectDate.format('MM/DD/YYYY'));
 
-var usersContainer = document.getElementById('users');
-var fetchButton = document.getElementById('fetch-button');
+    // Save the index of the project as a data-* attribute on the button. This
+    // will be used when removing the project from the array.
+    var deleteEl = $(
+      '<td><button class="btn btn-sm btn-delete-project" data-index="' +
+        i +
+        '">X</button></td>'
+    );
 
-function getApi() {
-  var requestUrl = 'https://api.github.com/users?per_page=5';
+    // add class to row by comparing project date to today's date
+    if (projectDate.isBefore(today)) {
+      rowEl.addClass('project-late');
+    } else if (projectDate.isSame(today)) {
+      rowEl.addClass('project-today');
+    }
 
-  fetch(requestUrl)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      //Using console.log to examine the data
-      console.log(data);
-      for (var i = 0; i < data.length; i++) {
-        //Creating a h3 element and a p element
-        var userName = document.createElement('h3');
-        var userUrl = document.createElement('p');
-
-        //Setting the text of the h3 element and p element.
-        userName.textContent = data[i].login;
-        userUrl.textContent = data[i].html_url;
-
-        //Appending the dynamically generated html to the div associated with the id="users"
-        //Append will attach the element as the bottom most child.
-        usersContainer.append(userName);
-        usersContainer.append(userUrl);
-      }
-    });
+    // append elements to DOM to display them
+    rowEl.append(nameEL, typeEl, dateEl, deleteEl);
+    projectDisplayEl.append(rowEl);
+  }
 }
-fetchButton.addEventListener('click', getApi);
+function handleProjectFormSubmit(event) {
+  event.preventDefault();
 
+  // read user input from the form
+  var projectName = projectNameInputEl.val().trim();
+  var projectType = projectTypeInputEl.val(); // don't need to trim select input
+  var projectDate = projectDateInputEl.val(); // yyyy-mm-dd format
 
-//  FECTCH STATUS
+  var newProject = {
+    name: projectName,
+    type: projectType,
+    date: projectDate,
+  };
 
-var badRequestUrl = 'https://api.github.com/orgs/nodejs/oreps';
+  // add project to local storage
+  var projects = readProjectsFromStorage();
+  projects.push(newProject);
+  saveProjectsToStorage(projects);
 
-var responseText = document.getElementById('response-text');
+  // print project data
+  printProjectData();
 
-function getApi(requestUrl) {
-  fetch(requestUrl)
-    .then(function (response) {
-      console.log(response.status);
-      //  Conditional for the the response.status.
-      if (response.status !== 200) {
-        // Place the response.status on the page.
-        responseText.textContent = response.status;
-      }
-      return response.json();
-    })
-    .then(function (data) {
-      // Make sure to look at the response in the console and read how 404 response is structured.
-      console.log(data);
-    });
+  // clear the form inputs
+  projectNameInputEl.val('');
+  projectTypeInputEl.val('');
+  projectDateInputEl.val('');
 }
-
-getApi(badRequestUrl);
-
-
-// FETCH OPTIONS
-
-fetch('https://api.github.com/repos/nodejs/node/issues?per_page=5', {
-  method: 'GET', //GET is the default.
-  credentials: 'same-origin', // include, *same-origin, omit
-  redirect: 'follow', // manual, *follow, error
-})
-  .then(function (response) {
-    return response.json();
-  })
-  .then(function (data) {
-    console.log(data);
-  });
-
-
-//  REVIEW MODULE 6 REVIEWS
 */
-

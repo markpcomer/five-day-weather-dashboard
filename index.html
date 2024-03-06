@@ -19,7 +19,7 @@
                 <!--Seach input and stored cities-->
                 <div class="col-lg-3 p-3">
                     <h3 class="form-label">Search for a City</h3>
-                    <form class="user-form">
+                    <form id="user-form">
                         <div class="input-group">
                             <input placeholder="Enter City Name" class="form-control py-2 text-left" id="city-input" type="text">
                         </div>
@@ -30,12 +30,12 @@
                     </form>
                     <!--City List-->
                     <div>
-                        <ul style="list-style-type: none" id="search-history" class="hidden">
+                        <ul style="list-style-type: none" id="search-history">
                         </ul>
                     </div>
                 </div>
                 <!--Current forecast section and forecast cards-->
-               <div class="col-lg-9">
+               <div class="col-lg-9 d-none">
                     <div class="card">
                         <div class="current-weather">
                             <h2><span id="city-name"></span></h2>
@@ -51,12 +51,44 @@
                     </div>
                </div>
                <!--Future forecast cards-->
-               <div class="row">
-                    <h3>Five day Forecast</h3>
+               <div class="row d-none">
+                    <h3>Five Day Forecast</h3>
                </div>
-               <div class="row" id="future-cards">
+               <div class="row d-none" id="future-cards">
                     <div class="col-2 card" id="1st-day">
-                        <p></p>
+                        <p>Date:</p>
+                        <img>
+                        <p>Temp:</p>
+                        <p>Wind:</p>
+                        <p>Humidity:</p>
+                    </div>
+                    <div class="col-2 card" id="2nd-day">
+                        <p>Date:</p>
+                        <img>
+                        <p>Temp:</p>
+                        <p>Wind:</p>
+                        <p>Humidity:</p>
+                    </div>
+                    <div class="col-2 card" id="3rd-day">
+                        <p>Date:</p>
+                        <img>
+                        <p>Temp:</p>
+                        <p>Wind:</p>
+                        <p>Humidity:</p>
+                    </div>
+                    <div class="col-2 card" id="4th-day">
+                        <p>Date:</p>
+                        <img>
+                        <p>Temp:</p>
+                        <p>Wind:</p>
+                        <p>Humidity:</p>
+                    </div>
+                    <div class="col-2 card" id="5th-day">
+                        <p>Date:</p>
+                        <img>
+                        <p>Temp:</p>
+                        <p>Wind:</p>
+                        <p>Humidity:</p>
                     </div>
                </div>
             </div>
