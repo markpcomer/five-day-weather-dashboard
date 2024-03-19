@@ -11,8 +11,10 @@ THEN I am again presented with current and future conditions for that city
 */
 
 var APIKey = "cbc00e00ddc9ea240d4e40b6ebc3d6f6";
-var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}`;
+var newAPIKey = "20ef3ea6758a437fd090faae1ef08152";
+var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={newAPIKey}`;
 var cities = [];
+var imperialQueryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=57&lon=-2.15&appid={API key}&units=imperial";
 
 var userFormEl = document.querySelector('#user-form');
 var cityInputEl = document.querySelector('#city-input');
@@ -20,6 +22,22 @@ var searchButtonEl = document.querySelector('#search-button');
 var searchHistory = document.querySelector('#search-history');
 var forecastCards = document.querySelector('#future-cards');
 var cityName = document.querySelector('#city-name');
+
+
+function fetchWeather(city) {
+  var imperialQueryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=57&lon=-2.15&appid={API key}&units=imperial";
+  fetch(imperialQueryURL)
+    .then (function (response) {
+      return response.json();
+    })
+    .then (function (data) {
+      displayCityWeather(data, city);
+    })
+}
+
+
+
+
 
 
 
