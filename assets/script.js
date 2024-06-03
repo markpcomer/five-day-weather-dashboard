@@ -15,11 +15,11 @@ var cityName = document.querySelector('#city-name');
 var currentWeather = document.querySelector('#current-weather');
 
 
-function fetchWeatherData(city) {
+function fetchWeatherData(cityName) {
   var { lat } = location;
   var { lon } = location;
-  var city = city.name;
-  
+  var cityName = city.name;
+
   var imperialQueryURL = `https://api.openweathermap.org/data/2.5/forecast?
     lat=${lat}&lon=${lon}&appid=${newAPIKey}&units=imperial`;
 
@@ -70,17 +70,40 @@ function renderCurrentWeatherCard(data) {
   resultWind.setAttribute('class', 'result-wind');
   resultWind.textContent = `${wind}`;
 
-  currentWeather.empty();
+  currentWeather.innerHTML = '';
   currentWeather.append(resultCard);
 
 }
 
-function displayCurrentWeather(city) {
-  fetchWeatherData(city)
+function displayCurrentWeather(cityName) {
+  fetchWeatherData(cityName)
     .then(renderCurrentWeatherCard)
     .catch(function (err) {
       console.log("Error", err);
     })
+}
+
+function getCityName(lat, lon, apiKey, callback) {
+  var reverseGeocodingURL = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${newAPIKey}`;
+
+  fetch(reverseGeocodingURL)
+      .then(function(response) {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(function(data) {
+          if (data && data.length > 0) {
+              var cityName = data[0].name;
+              callback(null, cityName);
+          } else {
+              callback(new Error('No city found for the provided coordinates.'), null);
+          }
+      })
+      .catch(function(error) {
+          callback(error, null);
+      });
 }
 
 
