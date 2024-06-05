@@ -1,6 +1,5 @@
 
 var APIKey = "cbc00e00ddc9ea240d4e40b6ebc3d6f6";
-var queryURL = `https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={APIKey}`;
 var cities = [];
 var imperialQueryURL = "https://api.openweathermap.org/data/2.5/forecast?lat=57&lon=-2.15&appid={APIKey}&units=imperial";
 
@@ -17,8 +16,51 @@ var inputGroup = document.querySelector('.input-group');
 
 var searchHistory = [];
 
-var gfCoords = `https://api.openweathermap.org/data/2.5/forecast?lat=111.3008&lon=47.5053&appid=20ef3ea6758a437fd090faae1ef08152&units=imperial`;
-console.log(gfCoords);
+// geocoded url: http://api.openweathermap.org/geo/1.0/direct?q={city name}&limit=5&appid={API key}
+
+
+//  Check if search history exists when page loads
+
+//  Add Event Listeners
+
+//  Fetch current weather based on user input
+function fetchCurrentWeatherData(searchValue) {
+  var geoCodeURL = `http://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${APIKey}`;
+
+  fetch(geoCodeURL)
+    //.then func that handles current & 5-day forecasts
+    //.catch handle error
+};
+
+//  Fetch 5-day forecast 
+function fetchFiveDayData(searchValue) {
+  var geoCodeURL = `http://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${APIKey}`;
+
+  fetch(geoCodeURL) 
+    .then(function(res) {
+      return res.json();
+    })
+    // .then render forecast cards
+    // .catch error
+};
+
+//  Handle fetch responses
+
+//  Create Current Weather Card
+
+//  Create 5-day Forecast Cards
+
+//  Render 5-day Forecast Cards
+
+//  Handle Form Submission
+
+//  Handle Search Button click
+
+//  Handle Stored City Button click
+
+//  Initialize Search History
+
+
 
 
 
@@ -32,9 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-
-
-//
 function renderSearchedCities(){
   searchHistoryEl.innerHTML = '';
 
@@ -46,8 +85,6 @@ function renderSearchedCities(){
     searchHistory.append(prevCity);
   })
 }
-
-
 
 function fetchWeatherData(location) {
   var { lat, lon } = location;
@@ -63,6 +100,7 @@ function fetchWeatherData(location) {
         return res.json();
       });
 }
+
 
 function getCityName(lat, lon, APIKey) {
   var reverseGeocodingURL = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${APIKey}`;
@@ -85,8 +123,6 @@ function getCityName(lat, lon, APIKey) {
           throw error;
       });
 }
-
-console.log(getCityName(11, 47, APIKey));
 
 function renderCurrentWeatherCard(city, weather) {
   currentWeather.innerHTML = '';
