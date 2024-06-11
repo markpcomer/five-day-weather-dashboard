@@ -10,14 +10,16 @@ var searchHistoryEl = document.querySelector('#search-history');
 var forecastCards = document.querySelector('#forecast-cards');
 var cityName = document.querySelector('#city-name');
 
-var currentWeather = document.querySelector('.current-weather');
+var currentCard = document.querySelector('.current-card');
 var inputGroup = document.querySelector('.input-group');
 
 var cityList = [];
 var searchHistory = [];
 
 
+
 //  Check if search history exists when page loads
+
 // initHistory();
 
 // Debuggin Event Listeners
@@ -40,6 +42,9 @@ var searchHistory = [];
 //   });
 // });
 
+
+
+
 //  Fetch current weather based on user input
 function fetchCurrentWeatherData(searchValue) {
   console.log("fetch current weather", searchValue);
@@ -50,11 +55,11 @@ function fetchCurrentWeatherData(searchValue) {
       return res.json();
     })
     .then(function (data) {
-      console.log(data); //returning empty array
+      console.log(data); 
       if(!data[0]){
         console.error('location not found');
       } else {
-        var { lat, lon, name } = data[0];
+        var { lat, lon } = data[0];
         var weatherApiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${APIKey}`;
 
         fetch(weatherApiUrl)
@@ -64,17 +69,16 @@ function fetchCurrentWeatherData(searchValue) {
           .then(function (weatherData) {
             console.log("weather data", weatherData);
             renderCurrentWeatherCard(weatherData);
-            // handleWeatherResponse(name, weatherData);
-            // appendSearchHistory(searchValue);
+
           })
           .catch(function (error) {
-            console.error(error);
+            console.error('Error in inner fetch', error);
           })
 
       }
     })
     .catch(function (err) {
-      console.error(err);
+      console.error('Error in outer fetch', err);
     })
 }
 
@@ -104,7 +108,8 @@ function fetchFiveDayData(searchValue) {
 
 //  Create Current Weather Card
 function renderCurrentWeatherCard(weatherData) {
-  currentWeather.innerHTML = '';
+  console.log(weatherData);
+  currentCard.innerHTML = '';
 
   if (!weatherData) {
     console.error('Error: Weather data is missing or invalid.');
@@ -112,44 +117,48 @@ function renderCurrentWeatherCard(weatherData) {
   }
   console.log(weatherData.city.name);
   //var todayDate = dayjs().format('MM/DD/YYYY');
+  var city = weatherData.city.name;
   var temp = weatherData.list[0].main.temp;
   var humidity = weatherData.list[0].main.humidity;
   var wind = weatherData.list[0].wind.speed;
 
   // Card
   var resultCard = document.createElement('div');
-  resultCard.setAttribute('class', 'result-card');
-  resultCard.append(resultCardBody);
-
-  // Card title
-  var resultCardTitle = document.createElement('h3');
-  resultCardTitle.setAttribute('class', 'h3 result-card-title');
-  resultCardTitle.textContent = `${city} ${todayDate}`;
+  //resultCard.setAttribute('class', 'result-card');
+  resultCard.classList.add('result-card');
 
   // Card body
   var resultCardBody = document.createElement('div');
-  resultCardBody.setAttribute('class', 'result-card-body');
-  resultCardBody.append(resultCardTitle);
+  // resultCardBody.setAttribute('class', 'result-card-body');
+  resultCardBody.classList.add('result-card-body');
+
+  // Card title
+  //var resultCardTitle = document.createElement('h3');
+  //resultCardTitle.setAttribute('class', 'h3 result-card-title');
+  //resultCardTitle.textContent = `${city}`;
+  var resultCity = document.createElement('h3');
+  resultCity.textContent = city;
 
   // Temp
   var resultTemp = document.createElement('p');
-  resultTemp.setAttribute('class', 'result-temp');
-  resultTemp.textContent = `${temp}`;
+  // resultTemp.setAttribute('class', 'result-temp');
+  resultTemp.textContent = 'Temperature: ' + temp;
 
   // Humidity
   var resultHumidity = document.createElement('p');
-  resultHumidity.setAttribute('class', 'result-humidity');
-  resultHumidity.textContent = `${humidity}`;
+  //resultHumidity.setAttribute('class', 'result-humidity');
+  resultHumidity.textContent = 'Humidity: ' + humidity;
+
 
   // Wind
   var resultWind = document.createElement('p');
-  resultWind.setAttribute('class', 'result-wind');
-  resultWind.textContent = `${wind}`;
+  //resultWind.setAttribute('class', 'result-wind');
+  resultWind.textContent = 'Wind: ' + wind;
 
-  resultCardBody.append(resultTemp, resultHumidity, resultWind);
-  resultCard.append(resultCardBody);
-  currentWeather.append(resultCard);
-
+  resultCardBody.append(resultCity, resultTemp, resultHumidity, resultWind);
+  resultCard.appendChild(resultCardBody);
+  currentCard.appendChild(resultCard);
+  currentCard.classList.remove('d-none');
 
   console.log("Rendered current card");
 }
@@ -216,6 +225,7 @@ function renderForecastCards(res) {
   } 
 }
 
+
 //  Handle Form Submission
 function handleFormSubmit(event) {
   
@@ -223,7 +233,8 @@ function handleFormSubmit(event) {
   console.log("handle form submit");
   var searchValue = cityInputEl.value.trim(); 
   console.log("searchValue", searchValue);
-  fetchCurrentWeatherData(searchValue)
+  fetchCurrentWeatherData(searchValue);
+  
     // .then(res => {
     //   renderCurrentWeatherCard(res);
     // })
@@ -273,7 +284,7 @@ function listStoredCityArray() {
 };
 
 //  Initialize Search History
-function initHistory() {
+function initHistory(searchValue) {
   if(localStorage.getItem('cities')) {
     cityList = JSON.parse(localStorage.getItem('cities'));
     var cityIndex = cityList.length -1;
@@ -281,13 +292,12 @@ function initHistory() {
     console.log("City Index:", cityIndex);
     listStoredCityArray();
     if(cityList.length !== 0) {
-      fetchCurrentWeatherData(cityList[cityIndex])
-        .then(res => {
-          renderCurrentWeatherCard(res);
-        })
+      fetchCurrentWeatherData(searchValue, function(res) {
+        renderCurrentWeatherCard(res);
+      });
     }
   }
 }
 
 
-userFormEl.addEventListener('click', handleFormSubmit);
+searchButton.addEventListener('click', handleFormSubmit);
