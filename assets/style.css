@@ -3,3 +3,8 @@
 header {
     background-image: linear-gradient(to right, rgb(61, 75, 228),rgb(7, 1, 124)  );
 }
+
+.search-area{
+    background-color: rgb(136, 190, 238);
+    border-radius: 10px;
+}

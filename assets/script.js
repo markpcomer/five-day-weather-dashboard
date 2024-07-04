@@ -47,7 +47,6 @@ var searchHistory = [];
 
 //  Fetch current weather based on user input
 function fetchCurrentWeatherData(searchValue) {
-  console.log("fetch current weather", searchValue);
   var geoCodeURL = `https://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${APIKey}`;
 
   fetch (geoCodeURL)
@@ -55,7 +54,6 @@ function fetchCurrentWeatherData(searchValue) {
       return res.json();
     })
     .then(function (data) {
-      console.log(data); 
       if(!data[0]){
         console.error('location not found');
       } else {
@@ -66,10 +64,9 @@ function fetchCurrentWeatherData(searchValue) {
           .then(function(res) {
             return res.json();
           })
-          .then(function (weatherData) {
-            console.log("weather data", weatherData);
-            renderCurrentWeatherCard(weatherData);
-
+          .then(function (weather) {
+            renderCurrentWeatherCard(weather);
+            renderForecastCards(weather);
           })
           .catch(function (error) {
             console.error('Error in inner fetch', error);
@@ -83,40 +80,30 @@ function fetchCurrentWeatherData(searchValue) {
 }
 
 //  Fetch 5-day forecast 
-function fetchFiveDayData(searchValue) {
-  var geoCodeURL = `http://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${APIKey}`;
+// function fetchFiveDayData(searchValue) {
+//   var geoCodeURL = `http://api.openweathermap.org/geo/1.0/direct?q=${searchValue}&limit=5&appid=${APIKey}`;
 
-  fetch(geoCodeURL) 
-    .then(function(res) {
-      return res.json();
-    })
-    .catch(error => {
-      console.log("Error fetching 5 day weather", error);
-    });
-    console.log("5 day weather");
-};
-
-//  Handle fetch responses
-// function handleWeatherResponse(city, weatherData){
-//     if (weatherData && weatherData.list && weatherData.list.length > 0){
-//       renderCurrentWeatherCard(city, weatherData.list[0]);
-//       renderForecastCards(city, weatherData.list);
-//     } else {
-//       console.error("Error: No weather data received");
-//     }
+//   fetch(geoCodeURL) 
+//     .then(function(res) {
+//       return res.json();
+//     })
+//     .catch(error => {
+//       console.log("Error fetching 5 day weather", error);
+//     });
+//     console.log("5 day weather");
 // };
+
 
 //  Create Current Weather Card
 function renderCurrentWeatherCard(weatherData) {
-  console.log(weatherData);
   currentCard.innerHTML = '';
+  console.log(weatherData);
 
   if (!weatherData) {
     console.error('Error: Weather data is missing or invalid.');
     return;
   }
-  console.log(weatherData.city.name);
-  //var todayDate = dayjs().format('MM/DD/YYYY');
+  var todayDate = dayjs().format('MM/DD/YYYY');
   var city = weatherData.city.name;
   var temp = weatherData.list[0].main.temp;
   var humidity = weatherData.list[0].main.humidity;
@@ -124,55 +111,50 @@ function renderCurrentWeatherCard(weatherData) {
 
   // Card
   var resultCard = document.createElement('div');
-  //resultCard.setAttribute('class', 'result-card');
   resultCard.classList.add('result-card');
 
   // Card body
   var resultCardBody = document.createElement('div');
-  // resultCardBody.setAttribute('class', 'result-card-body');
   resultCardBody.classList.add('result-card-body');
 
   // Card title
-  //var resultCardTitle = document.createElement('h3');
-  //resultCardTitle.setAttribute('class', 'h3 result-card-title');
-  //resultCardTitle.textContent = `${city}`;
-  var resultCity = document.createElement('h3');
+  var resultCity = document.createElement('h4');
+  var resultDate = document.createElement('h5');
   resultCity.textContent = city;
+  resultDate.textContent = todayDate;
 
   // Temp
   var resultTemp = document.createElement('p');
-  // resultTemp.setAttribute('class', 'result-temp');
-  resultTemp.textContent = 'Temperature: ' + temp;
+  resultTemp.textContent = 'Temperature: ' + temp + '° F';
 
   // Humidity
   var resultHumidity = document.createElement('p');
-  //resultHumidity.setAttribute('class', 'result-humidity');
-  resultHumidity.textContent = 'Humidity: ' + humidity;
+  resultHumidity.textContent = 'Humidity: ' + humidity + "%";
 
 
   // Wind
   var resultWind = document.createElement('p');
-  //resultWind.setAttribute('class', 'result-wind');
-  resultWind.textContent = 'Wind: ' + wind;
+  resultWind.textContent = 'Wind: ' + wind + ' MPH';
 
-  resultCardBody.append(resultCity, resultTemp, resultHumidity, resultWind);
+  resultCardBody.append(resultCity, resultDate, resultTemp, resultHumidity, resultWind);
   resultCard.appendChild(resultCardBody);
   currentCard.appendChild(resultCard);
   currentCard.classList.remove('d-none');
-
-  console.log("Rendered current card");
 }
 
 //  Create 5-day Forecast Cards
-function CreateForecastCards(data) {
+function createForecastCards(weatherData) {
   // clear previous forecast info upon search
   forecastCards.innerHTML = '';
+  console.log(weatherData);
 
-  for (var i = 6; i < data.list.length; i += 8) {
-    // var forecastDate = moment(data.list[i].dt_txt).format("MM/DD/YYYY");
-    var forecastTemp = data.list[i].main.temp;
-    var forecastHumidity = data.list[i].main.temp;
-    var forecastWind = data.list[i].wind;
+  for (i = 0; i < weatherData.length; i++) {
+    var firstDay = dayjs().add(1, 'day').startOf('day');
+
+    var forecastDate = dayjs().format('MM/DD/YYYY');
+    var forecastTemp = weatherData.list[i].main.temp;
+    var forecastHumidity = weatherData.list[i].main.temp;
+    var forecastWind = weatherData.list[i].wind;
 
     // 5 cards
     var forecastGroup = document.createElement('div');
@@ -186,14 +168,14 @@ function CreateForecastCards(data) {
     
     // Card title
     var forecastCardTitle = document.createElement('h5');
-    forecastCardTitle.setAttribute('class', ' card-title text-white ml-3 mt-2');
+    forecastCardTitle.setAttribute('class', 'card-title text-white ml-3 mt-2');
     forecastCardTitle.textContent = `${forecastDate}`;
 
     // Card body
     var forecastCardBody = document.createElement('div');
     forecastCardBody.setAttribute('class', 'card-text text-white ml-3');
     forecastCardBody.setAttribute('id', 'forcastData');
-    forecastCardBody.append(forecastCardTitle, forecastCardTemp, rforecastCardHumidity, forecastCardWind)
+    forecastCardBody.append(forecastCardTitle, forecastCardTemp, forecastCardHumidity, forecastCardWind)
 
     // Temp
     var forecastCardTemp = document.createElement('p');
@@ -211,28 +193,49 @@ function CreateForecastCards(data) {
     forecastCardWind.textContent = `${forecastWind}`;
 
     forecastCards.append(forecastGroup);
-    console.log('Created 5 day cards');
+    forecastCards.classList.remove('d-none');
+
+    console.log(data, 'Created 5 day cards');
   }
+  
 }
 
 //  Render 5-day Forecast Cards
-function renderForecastCards(res) {
+function renderForecastCards(forecast) {
   forecastCards.innerHTML = '';
-  for (var i = 1; i < res.length; i++) {
-    // var date = date
-    var forecastEl = createForecastCards(res.list[i], /* date */);
-    forecastCards.append(forecastEl);
-  } 
+
+  console.log(forecast);
+
+
+  var headerContainer = document.createElement('div');
+  headerContainer.setAttribute('class', 'col-12');
+
+  var headerTitle = document.createElement('h2');
+  headerTitle.textContent = '5 Day Forecast';
+
+  headerContainer.append(headerTitle);
+  forecastCards.classList.remove('d-none');
+  forecastCards.append(headerContainer);
+ 
+  for (var i = 1; i < forecast.length; i += 8) {
+    var firstDay = dayjs().add(1, 'day').startOf('day');
+    var lastDay = dayjs().add(6, 'day').startOf('day');
+    if (forecast[i].dt >= firstDay && forecast[i].dt < lastDay) {
+      console.log(forecast[i]);
+      console.log('renderForecastCards loop');
+      createForecastCards(forecast[i]);
+    }
+  }
 }
+
+
 
 
 //  Handle Form Submission
 function handleFormSubmit(event) {
   
   event.preventDefault();
-  console.log("handle form submit");
   var searchValue = cityInputEl.value.trim(); 
-  console.log("searchValue", searchValue);
   fetchCurrentWeatherData(searchValue);
   
     // .then(res => {
@@ -240,8 +243,6 @@ function handleFormSubmit(event) {
     // })
   //  .then(res => displaySearchHistory(res))
   //  .then(() => searchValue.value = "");
-
-    console.log("Enter a city name");
   }
   
 
